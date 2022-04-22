@@ -83,6 +83,7 @@ def portPing(host, port):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.settimeout(2)
     result = sock.connect_ex((str(host), int(port)))
+    sock.close()
     if result == 0:
         return 1
     else:
@@ -135,7 +136,14 @@ numOfIP = 0
 
 for i in NEED_PORT:
     while True:
-        if portPing(IPList[numOfIP], i) != 1:
+        status_code = 200
+        try:
+            status_code = requests.get(
+                ("http://{}:{}").format(IPList[numOfIP], i)).status_code
+        except:
+            status_code = 200
+            print("err")
+        if portPing(IPList[numOfIP], i) != 1 and status_code == 200:
             numOfIP = numOfIP + 1
         else:
             break
